@@ -3,6 +3,7 @@ use tonic::{transport::Server, Request, Response, Status};
 
 use hello_world::greeter_server::{Greeter, GreeterServer};
 use hello_world::{HelloReply, HelloRequest};
+use log::info;
 
 pub mod hello_world {
     tonic::include_proto!("helloworld"); // The string specified here must match the proto package name
@@ -29,7 +30,8 @@ impl Greeter for MyGreeter {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("Start Grpc service");
+    env_logger::init();
+    info!("Event service is starting...");
 
     let addr = "[::1]:50051".parse()?;
     let greeter = MyGreeter::default();
