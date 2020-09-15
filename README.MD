@@ -19,8 +19,8 @@ Call Grpc service
 # need to be run from directory with this repo
 prototool grpc proto \
   --address [::]:50051 \
-  --method helloworld.Greeter/SayHello \
-  --data '{"name":"test"}' \
+  --method event.EventApi/Handle \
+  --data '{ "event": "test", "properties": {"fields": []}, "context": {"app": {"name": "test app"}, "ip": "192.168.0.1", "userAgent": "Smith"}, "sent_at": "1970-01-01T00:00:00Z", "timestamp": "1980-11-21T00:00:00Z" }' \
   --details
 ```                    
 
@@ -29,10 +29,10 @@ or
 ```sh 
 # need to be run from directory with this repo
 grpcurl -plaintext -import-path ./proto \
-  -proto helloworld.proto \
-  -d '{"name": "Tonic"}' \
+  -proto events.proto \
+  -d '{ "event": "test", "properties": {"fields": []}, "context": {"app": {"name": "test app"}, "ip": "192.168.0.1", "userAgent": "Smith"}, "sent_at": "1970-01-01T00:00:00Z", "timestamp": "1980-11-21T00:00:00Z" }' \
   [::]:50051 \
-  helloworld.Greeter/SayHello
+  event.EventApi/Handle
 
 ```
 

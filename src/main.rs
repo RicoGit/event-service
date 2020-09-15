@@ -1,30 +1,31 @@
-
 use tonic::{transport::Server, Request, Response, Status};
 
-use hello_world::greeter_server::{Greeter, GreeterServer};
-use hello_world::{HelloReply, HelloRequest};
+use events_grpc::event_api_server::{EventApi, EventApiServer};
+use events_grpc::{TrackEventRequest, TrackEventResponse};
 use log::info;
 
-pub mod hello_world {
-    tonic::include_proto!("helloworld"); // The string specified here must match the proto package name
+/// Contains generated Grpc entities for EventApi
+pub mod events_grpc {
+    // The string specified here must match the proto package name
+    tonic::include_proto!("event");
 }
 
 #[derive(Debug, Default)]
-pub struct MyGreeter {}
+pub struct EventSvc {}
 
 #[tonic::async_trait]
-impl Greeter for MyGreeter {
-    async fn say_hello(
+impl EventApi for EventSvc {
+    async fn handle(
         &self,
-        request: Request<HelloRequest>, // Accept request of type HelloRequest
-    ) -> Result<Response<HelloReply>, Status> { // Return an instance of type HelloReply
-        println!("Got a request: {:?}", request);
+        request: Request<TrackEventRequest>,
+    ) -> Result<Response<TrackEventResponse>, Status> {
+        info!("Got a request: {:?}", request);
 
-        let reply = hello_world::HelloReply {
-            message: format!("Hello {}!", request.into_inner().name).into(), // We must use .into_inner() as the fields of gRPC requests and responses are private
+        let response = events_grpc::TrackEventResponse {
+            status: events_grpc::track_event_response::Status::Ok.into(),
         };
 
-        Ok(Response::new(reply)) // Send back our formatted greeting
+        Ok(Response::new(response))
     }
 }
 
@@ -34,10 +35,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Event service is starting...");
 
     let addr = "[::1]:50051".parse()?;
-    let greeter = MyGreeter::default();
+    let event_svc = EventSvc::default();
 
     Server::builder()
-        .add_service(GreeterServer::new(greeter))
+        .add_service(EventApiServer::new(event_svc))
         .serve(addr)
         .await?;
 

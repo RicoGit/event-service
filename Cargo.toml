@@ -9,13 +9,14 @@ edition = "2018"
 # Grpc
 tonic = "0.3"
 prost = "0.6"
+prost-types = "0.6"
 
 # Async
 tokio = { version = "0.2", features = ["macros"] }
 
 # Logging
-log = "0.4.8"
-env_logger = "0.7.1"
+log = "0.4"
+env_logger = "0.7"
 
 [build-dependencies]
 tonic-build = "0.3"
