@@ -6,7 +6,7 @@
 //!     grpc::start("/full/path/to/config.yml").await
 //! ```
 
-use anyhow::{Context, Error};
+use anyhow::{Context, Result};
 use tonic::transport::Server;
 
 use event_api::event_api_server::EventApiServer;
@@ -21,7 +21,7 @@ pub struct GrpcConfig {
 }
 
 /// Starts Grpc server
-pub async fn start(grpc_config: GrpcConfig) -> Result<(), Error> {
+pub async fn start(grpc_config: GrpcConfig) -> Result<()> {
     let address = grpc_config.address.parse()?;
     let event_svc = EventSvc::default();
 

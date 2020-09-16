@@ -7,6 +7,7 @@ use log::{error, info};
 
 pub mod app;
 pub mod grpc;
+pub mod kafka;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

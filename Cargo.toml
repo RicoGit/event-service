@@ -11,6 +11,9 @@ tonic = "0.3"
 prost = "0.6"
 prost-types = "0.6"
 
+# Kafka client
+rdkafka = "0.24"
+
 # Async
 tokio = { version = "0.2", features = ["macros"] }
 

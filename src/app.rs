@@ -1,27 +1,32 @@
-use anyhow::Error;
+use anyhow::Result;
 use log::info;
+use tokio::prelude;
 
-use crate::grpc;
+use crate::kafka::kafka_client::KafkaClient;
+use crate::{grpc, kafka};
 
 #[derive(Deserialize, Debug, Clone, PartialEq)]
 pub struct AppConfig {
-    // pub kafka: kafka::KafkaConfig,
+    pub kafka: kafka::KafkaConfig,
     pub grpc: grpc::GrpcConfig,
 }
 
 /// Starts server for processing Grpc/Rest events. Connects and writes events to Kafka.
 /// Blocks the current thread.
-pub async fn start(config_path: &str) -> Result<(), Error> {
+pub async fn start(config_path: &str) -> Result<()> {
     let config = read_config(config_path);
     info!("AppConfig: {:?}", config);
     run(config).await
 }
 
-pub async fn run(config: AppConfig) -> Result<(), Error> {
-    // let kafka = KafkaClient::new(config.kafka);
-    // kafka.start().context("Can't start KafkaClient")
-
-    grpc::start(config.grpc).await
+pub async fn run(config: AppConfig) -> Result<()> {
+    // starting all services as long-running futures, if any finishes other will be stopped
+    tokio::select! {
+        grpc = grpc::start(config.grpc) => grpc?,
+        kafka = KafkaClient::new(config.kafka).start() => kafka?
+    };
+    info!("All services are initializing");
+    Ok(())
 }
 
 /// Reads config from the specified path, allows override some properties vie env variables.

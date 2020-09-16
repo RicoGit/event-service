@@ -1,2 +1,10 @@
 grpc:
   address: "[::1]:50052"
+
+kafka:
+  producer:
+    bootstrap_servers: "localhost:9092"
+    options:
+      compression.type: lz4
+      log.connection.close:  true
+  event_topic: "events"
