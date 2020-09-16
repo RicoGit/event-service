@@ -7,10 +7,10 @@
 
 ```sh      
   # simple run
-  cargo run 
+  cargo run $(pwd)/resources/config.yml
                     
   # or with logs
-  RUST_LOG=debug cargo run 
+  RUST_LOG=info cargo run $(pwd)/resources/config.yml 
 ```      
 
 Call Grpc service

@@ -1,46 +1,31 @@
-use tonic::{transport::Server, Request, Response, Status};
+#[macro_use]
+extern crate serde_derive;
 
-use events_grpc::event_api_server::{EventApi, EventApiServer};
-use events_grpc::{TrackEventRequest, TrackEventResponse};
-use log::info;
+use std::env;
 
-/// Contains generated Grpc entities for EventApi
-pub mod events_grpc {
-    // The string specified here must match the proto package name
-    tonic::include_proto!("event");
-}
+use log::{error, info};
 
-#[derive(Debug, Default)]
-pub struct EventSvc {}
-
-#[tonic::async_trait]
-impl EventApi for EventSvc {
-    async fn handle(
-        &self,
-        request: Request<TrackEventRequest>,
-    ) -> Result<Response<TrackEventResponse>, Status> {
-        info!("Got a request: {:?}", request);
-
-        let response = events_grpc::TrackEventResponse {
-            status: events_grpc::track_event_response::Status::Ok.into(),
-        };
-
-        Ok(Response::new(response))
-    }
-}
+pub mod app;
+pub mod grpc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
-    info!("Event service is starting...");
 
-    let addr = "[::1]:50051".parse()?;
-    let event_svc = EventSvc::default();
+    info!(
+        "Event Service version is {} is staring ...",
+        env!("CARGO_PKG_VERSION")
+    );
 
-    Server::builder()
-        .add_service(EventApiServer::new(event_svc))
-        .serve(addr)
-        .await?;
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 2 {
+        error!("[Error] Config path is required. Put the full path to the config file as the first parameter.");
+        ::std::process::exit(1);
+    }
+
+    info!("Preparing to start the processing");
+    app::start(&args[1]).await?;
+    info!("Processing was shutdown");
 
     Ok(())
 }
