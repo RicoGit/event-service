@@ -7,4 +7,4 @@ kafka:
     options:
       compression.type: lz4
       log.connection.close:  true
-  event_topic: "events"
+    event_topic: "events"
