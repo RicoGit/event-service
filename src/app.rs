@@ -1,7 +1,7 @@
 use anyhow::Result;
 use log::info;
-use tokio::prelude;
 
+use crate::kafka::event_queue::EventQueue;
 use crate::{grpc, kafka};
 
 #[derive(Deserialize, Debug, Clone, PartialEq)]
@@ -20,9 +20,10 @@ pub async fn start(config_path: &str) -> Result<()> {
 
 pub async fn run(config: AppConfig) -> Result<()> {
     // starting all services as long-running futures, if any finishes other will be stopped
+    let event_queue = EventQueue::new(config.kafka.producer)?;
     tokio::select! {
-        grpc = grpc::start(config.grpc) => grpc?,
-        // todo run Rest server here as well
+        grpc = grpc::start(config.grpc, event_queue) => grpc?,
+        // http = http::start(config.http, event_queue) => http?,
     };
     info!("All services are initializing");
     Ok(())

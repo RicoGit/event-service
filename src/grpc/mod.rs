@@ -12,6 +12,7 @@ use tonic::transport::Server;
 use event_api::event_api_server::EventApiServer;
 
 use crate::grpc::event_api::EventSvc;
+use crate::kafka::event_queue::EventQueue;
 
 pub mod event_api;
 
@@ -21,9 +22,9 @@ pub struct GrpcConfig {
 }
 
 /// Starts Grpc server
-pub async fn start(grpc_config: GrpcConfig) -> Result<()> {
+pub async fn start(grpc_config: GrpcConfig, event_queue: EventQueue) -> Result<()> {
     let address = grpc_config.address.parse()?;
-    let event_svc = EventSvc::default();
+    let event_svc = EventSvc::new(event_queue);
 
     Server::builder()
         .add_service(EventApiServer::new(event_svc))
